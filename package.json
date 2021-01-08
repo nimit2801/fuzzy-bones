@@ -1,0 +1,23 @@
+{
+  "name": "fuzzy-bones",
+  "version": "1.0.0",
+  "description": "Discord bot made with discordjs",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nimit2801/fuzzy-bones.git"
+  },
+  "author": "Nimit Savant",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/nimit2801/fuzzy-bones/issues"
+  },
+  "homepage": "https://github.com/nimit2801/fuzzy-bones#readme",
+  "dependencies": {
+    "discord-xp": "^1.1.7",
+    "discord.js": "^12.5.1"
+  }
+}
