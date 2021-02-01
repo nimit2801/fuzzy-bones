@@ -5,7 +5,10 @@ const axios = require('axios');
 const { Client, Role, WebhookClient, MessageEmbed, Message, DiscordAPIError, Guild } = require('discord.js');
 
 const webhookclient = new WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_TOKEN);
+const connectDB = require('./connection');
 
+//connectDB()
+//    .then(console.log('Connected to database!'));
 const client = new Client({
     partials: ['MESSAGE', 'REACTION']
 });
@@ -17,8 +20,8 @@ client.on('ready', () => {
 
 client.on('ready', () => {
     //This will get the amount of servers and then return it.
-    const servers = client.guilds.cache.size
-    const users = client.users.cache.size
+    const servers = client.guilds.cache.size;
+    const users = client.users.cache.size;
     
     console.log(`Bot is now online and serving in ${servers} Server and ${users} users`);
 
@@ -26,9 +29,17 @@ client.on('ready', () => {
     // client.user.setActivity(`in ${servers} servers and serving ${users} Users`, {
     //     type: 'PLAYING',
     // });
-    client.user.setActivity(`fucking unicorns!`, {
-        type: 'PLAYING'
-    })
+    client.user.setActivity(`with unicorns!`, {
+        type: 'SINGING'
+    });
+
+    // Set Avatar
+    // client.user.setAvatar('./src/images/unicorn_img.png')
+    //     .then( user => {console.log('New Avatar set')})
+    //     .catch(e => {
+    //         console.log(`Error: ${e}`);
+    //     });
+
     // client.guilds.members.fetchAllmembers()
     // .then(console.log)
     // .catch(console.error);
@@ -60,18 +71,19 @@ const embed = (message, rank, matches, kills, deaths, assists, user) => {
         "Immoratal 3" : 'https://static.wikia.nocookie.net/valorant/images/f/f9/TX_CompetitiveTier_Large_23.png/revision/latest/scale-to-width-down/185?cb=20200623203617',
         "Radiant" : 'https://static.wikia.nocookie.net/valorant/images/2/24/TX_CompetitiveTier_Large_24.png/revision/latest/scale-to-width-down/185?cb=20200623203621'
     };
+    const kd = kills/deaths;
     const embed = new MessageEmbed()
     .setTitle('Valorant Stats')
     .setColor(0xff0000)
     .addField('matches', matches)
     .addField('kills', kills)
     .addField('deaths', deaths)
+    .addField('kd', kd)
     .addField('assists', assists)
     .setDescription(`Valorant Stats for ${user}`)
     .setImage(ranks_img[rank])
     .addField('Rank', rank)
     .setTimestamp()
-    .author
     .setFooter('Valorant Stats by Fuzzy-Bones');
     message.channel.send(embed);
 }
@@ -95,7 +107,30 @@ const makecall = async (args, message) => {
     })
 }
 
-
+const makeGitHubCall = async (args, message) => {
+    await axios.get(`https://api.github.com/users/${args[0]}`)
+    .then( response => {
+        let data = response.data;
+        console.log(data);
+        const { login, avatar_url, html_url, url, name, followers, following, public_repos, public_gists, create_at, updated_at } = data;
+        const messageGitHubEmbed = new MessageEmbed()
+        .setTitle(`GitHub Profile`)
+        .setURL(html_url)
+        .setImage(avatar_url)
+        .addField('Username', login)
+        .addField('Name', name)
+        .addField('Repos', public_repos)
+        .addField('Following', following)
+        .addField('Followers', followers)
+        .addField('Follow me here', html_url)
+        .setFooter('GitHub Stats by Fuzzy Bones')
+        .setTimestamp();
+        message.channel.send(messageGitHubEmbed);
+    })
+    .catch(e => {
+        console.log(`ERROR: ${e}`); 
+    })
+};
 
 client.on('message', async (message) => {
     if(message.author.bot === true) return;
@@ -106,10 +141,49 @@ client.on('message', async (message) => {
         .split(/\s+/);
         //console.log(CMD_NAME);
         switch(CMD_NAME){
+            case "github-user": {
+                makeGitHubCall(args, message);
+            }
+            break;
+            case "help" : {
+                const help = require('./commands/help');
+                const data = help(client).data;
+                message.author.send(data);
+            }
+            break;
+            case "me": {
+                message.author.send('umm hey!')
+            }
+            break;
+            case "who" :{
+                if(args[0] === 'u')
+                    message.reply('umm yo daddy honey!');
+                else return
+            }
+            break;
+            case "bye" : {
+                try {
+                    await message.channel.send('I\'m gonna go and take some rest by fam.');    // Send the message
+                  
+                    await message.delete();                   // Delete the command message
+                    await client.user.setStatus('invisible'); // Mark the client as offline (instead of waiting)
+                    await client.destroy();  
+                    console.log('sleep');                 // Remove the client instance
+                  } catch(err) {
+                    console.error(err);                       // Return any errors from rejected promises
+                  }
+            }
+            break;
+            case "hi" : {
+                message.channel.send('hello @here how are you guys!');
+            }
+            break;
             case "roles" : {
-                const rolesnumber = new Role(client, message.guild.roles.cache.get(args[0]), message.guild).members.size;
-                args[0].replace(/<\D+\d+>/g, ' ').trim();
-                console.log(args[0]);
+                let p = args[0];
+                p = p.replace('>', '')
+                p = p.replace('<@&', '')
+                const rolesNumber = new Role(client, message.guild.roles.cache.get(p), message.guild).members.size;
+                message.channel.send(rolesNumber);
             }
             break;
             case "val-stats" : {
@@ -127,7 +201,10 @@ client.on('message', async (message) => {
             case "kick": {
                 if(!message.member.hasPermission('KICK_MEMBERS')) return message.reply('You do not have permissions to use that command!');
                 if(args.length === 0) return message.reply('Please provide an user. ');
-                const member = message.guild.members.cache.get(args[0]);
+                let p = args[0];
+                p = p.replace('>', '');
+                p = p.replace('<@!', ''); //<@& //<@!
+                const member = message.guild.members.cache.get(p);
                 if(member){
                     member.kick()
                     .then((member) => {
@@ -142,6 +219,7 @@ client.on('message', async (message) => {
             }
             break;
             case "ban" : {
+                console.log(message.member);
                 if(!message.member.hasPermission('BAN_MEMBERS')) return message.channel.send('You do not have permissions to use that command!');
                 if(args.length === 0) return message.reply('Please provide an user. ');
                 
@@ -149,8 +227,17 @@ client.on('message', async (message) => {
                 //     console.log(err);
                 // });
                 try{
-                    const user = message.guild.members.ban(args[0]);
-                    message.channel.send(`Banned ${args}`);
+                    // const ban_ = message.author.id;
+                    let p = args[0];
+                    p = p.replace('>', '');
+                    p = p.replace('<@!', '');
+                    const user = message.guild.members.ban(p)
+                    .then( user => {
+                        message.channel.send(`Banned ${args}`);
+                    }).catch(e => {
+                        message.channel.send('An error occured or the user was not found!');
+                    });
+                    
                 }
                 catch(err){
                     console.log(err);
@@ -214,6 +301,10 @@ client.on('messageReactionRemove', (reaction, user) => {
             }
     }
 });
+
+client.off('message', async message => {
+    message.send.channel('bye amigos me going offline don\'t have fun without me');
+})
 
 
 client.login(process.env.DJSTOKEN); 
