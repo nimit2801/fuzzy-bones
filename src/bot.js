@@ -354,7 +354,7 @@ client.on('messageReactionRemove', (reaction, user) => {
 
 
 client.on('message', async message => {
-    if(channels.includes(message.channel.id) && message.author.bot === false && message.member.hasPermission('ADMINISTRATOR')){
+    if(channels.includes(message.channel.id) && message.author.bot === false){
         message.delete()
             .then(message.channel.send(`Anonymous user said: ${message.content}`))
             .catch(console.error)
