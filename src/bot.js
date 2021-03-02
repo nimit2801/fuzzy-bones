@@ -2,6 +2,17 @@
 require('dotenv').config();
 const axios = require('axios');
 
+var events = require('events');
+const myEmitter = new events.EventEmitter();
+
+function fun(){
+    if(1<2)
+    console.log('this happened');
+}
+
+myEmitter.on('fun1', fun);
+
+
 const { Client, Role, WebhookClient, MessageEmbed, Message, DiscordAPIError, Guild } = require('discord.js');
 
 const webhookclient = new WebhookClient(process.env.WEBHOOK_ID, process.env.WEBHOOK_TOKEN);
@@ -12,38 +23,43 @@ const connectDB = require('./connection');
 const client = new Client({
     partials: ['MESSAGE', 'REACTION']
 });
-//const gmm = new GuildMemberManager(client);
+
 const PREFIX = "!";
 client.on('ready', () => {
     console.log(`${client.user.username} has logged in!`);
+    
 })
 
 client.on('ready', () => {
-    //This will get the amount of servers and then return it.
     const servers = client.guilds.cache.size;
     const users = client.users.cache.size;
     
     console.log(`Bot is now online and serving in ${servers} Server and ${users} users`);
 
-    //This will display "Playing in <servers> servers!"
-    // client.user.setActivity(`in ${servers} servers and serving ${users} Users`, {
-    //     type: 'PLAYING',
-    // });
     client.user.setActivity(`with unicorns!`, {
         type: 'SINGING'
     });
-
-    // Set Avatar
-    // client.user.setAvatar('./src/images/unicorn_img.png')
-    //     .then( user => {console.log('New Avatar set')})
-    //     .catch(e => {
-    //         console.log(`Error: ${e}`);
-    //     });
-
-    // client.guilds.members.fetchAllmembers()
-    // .then(console.log)
-    // .catch(console.error);
 })
+
+
+function decimalAdjust(type, value, exp) {
+    // If the exp is undefined or zero...
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    // If the value is not a number or the exp is not an integer...
+    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    // Shift
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    // Shift back
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+  }
 
 // this fuctions takes data from makecall and send an embeded stat for the valo player
 const embed = (message, rank, matches, kills, deaths, assists, user) => {
@@ -71,7 +87,8 @@ const embed = (message, rank, matches, kills, deaths, assists, user) => {
         "Immoratal 3" : 'https://static.wikia.nocookie.net/valorant/images/f/f9/TX_CompetitiveTier_Large_23.png/revision/latest/scale-to-width-down/185?cb=20200623203617',
         "Radiant" : 'https://static.wikia.nocookie.net/valorant/images/2/24/TX_CompetitiveTier_Large_24.png/revision/latest/scale-to-width-down/185?cb=20200623203621'
     };
-    const kd = kills/deaths;
+    const floor10 = (value, exp) => decimalAdjust('floor', value, exp);
+    const kd = floor10(kills/deaths, -2);
     const embed = new MessageEmbed()
     .setTitle('Valorant Stats')
     .setColor(0xff0000)
@@ -85,6 +102,7 @@ const embed = (message, rank, matches, kills, deaths, assists, user) => {
     .addField('Rank', rank)
     .setTimestamp()
     .setFooter('Valorant Stats by Fuzzy-Bones');
+//    console.log(embed.color, embed.fields, embed//.toJSON());
     message.channel.send(embed);
 }
 
@@ -132,6 +150,8 @@ const makeGitHubCall = async (args, message) => {
     })
 };
 
+let channels = ['793368291213181009'];
+
 client.on('message', async (message) => {
     if(message.author.bot === true) return;
     if(message.content.startsWith(PREFIX)){
@@ -141,6 +161,35 @@ client.on('message', async (message) => {
         .split(/\s+/);
         //console.log(CMD_NAME);
         switch(CMD_NAME){
+            case "setChannel": {
+                channels.push(message.channel.id);
+                message.channel.send('This channel was added in the anonymous channels list!')
+                console.log(message.channel.id);
+            }
+            break;
+            case "ismebot": {
+                if(message.author.bot === true)
+                    message.reply('you\'re bot!')
+                else
+                    message.reply('you\'re not a bot!')
+            }
+            break;
+            case "aa" : {
+                let m = new MessageEmbed()
+                    .addField('A', 'B', [true]);
+                message.channel.send(m);
+            }
+            case "server-stats" : {
+                console.log(client.systemChannelID);
+            }
+            break;
+            case "uptime" : {
+                console.log(client.uptime);
+            }
+            break;
+            case "asd" : {
+                veer()
+            }
             case "github-user": {
                 makeGitHubCall(args, message);
             }
@@ -302,9 +351,25 @@ client.on('messageReactionRemove', (reaction, user) => {
     }
 });
 
+
+
+client.on('message', async message => {
+    if(channels.includes(message.channel.id) && message.author.bot === false && message.member.hasPermission('ADMINISTRATOR')){
+        message.delete()
+            .then(message.channel.send(`Anonymous user said: ${message.content}`))
+            .catch(console.error)
+    }
+})
+
 client.off('message', async message => {
     message.send.channel('bye amigos me going offline don\'t have fun without me');
 })
 
+const uptime_ = () => {
+    if(client.uptime>500)
+        myEmitter.emit('fun1');
+}
+
+uptime_();
 
 client.login(process.env.DJSTOKEN); 
