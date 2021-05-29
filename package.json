@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon ./src/bot.js",
-    "dev": "nodemon ./src/bot.js"
+    "bot": "nodemon ./src/bot.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "@discordjs/opus": "^0.5.0",
     "axios": "^0.21.1",
     "discord-xp": "^1.1.7",
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.3.0"
   },

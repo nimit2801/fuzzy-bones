@@ -393,47 +393,60 @@ client.on('message', async (message) => {
   }
 });
 
-client.on('messageReactionAdd', (reaction, user) => {
-  console.log(`hello`);
+client.on('channelPinsUpdate', (channel, time) => {
+  console.log(channel.id);
+});
+
+// client.on('message', (message) => {
+//   console.log(message.content);
+//   message.channel.startTyping();
+//   message.channel.send();
+// });
+
+let roles = ['829634236616409098', '848237846002663444', '848237955881107528'];
+let channelRoles = ['848231098257637407'];
+
+client.on('messageReactionAdd', async (reaction, user) => {
   const { name } = reaction.emoji;
   const member = reaction.message.guild.members.cache.get(user.id);
-  if (reaction.message.id === '797268697219334144') {
-    switch (name) {
-      case '🍎':
-        member.roles.add('797270006378397708');
-        break;
-      case '🍌':
-        member.roles.add('797270082517991507');
-        break;
-      case '👑':
-        member.roles.add('797270129222221836');
-        break;
-      case '🐍':
-        member.roles.add('797270192232988692');
-        break;
+  try {
+    if (reaction.message.id === channelRoles[0]) {
+      switch (name) {
+        case '🕹️':
+          await member.roles.add(roles[0]);
+          break;
+        case '🎵':
+          await member.roles.add(roles[1]);
+          break;
+        case '💡':
+          await member.roles.add(roles[2]);
+          break;
+      }
     }
+  } catch (error) {
+    console.log(error);
   }
 });
 
-client.on('messageReactionRemove', (reaction, user) => {
-  console.log(`hello`);
+client.on('messageReactionRemove', async (reaction, user) => {
   const { name } = reaction.emoji;
   const member = reaction.message.guild.members.cache.get(user.id);
-  if (reaction.message.id === '797268697219334144') {
-    switch (name) {
-      case '🍎':
-        member.roles.remove('797270006378397708');
-        break;
-      case '🍌':
-        member.roles.remove('797270082517991507');
-        break;
-      case '👑':
-        member.roles.remove('797270129222221836');
-        break;
-      case '🐍':
-        member.roles.remove('797270192232988692');
-        break;
+  try {
+    if (reaction.message.id === channelRoles[0]) {
+      switch (name) {
+        case '🕹️':
+          await member.roles.remove(roles[0]);
+          break;
+        case '🎵':
+          await member.roles.remove(roles[1]);
+          break;
+        case '💡':
+          await member.roles.remove(roles[2]);
+          break;
+      }
     }
+  } catch (error) {
+    console.log(error);
   }
 });
 
@@ -449,11 +462,5 @@ client.on('message', async (message) => {
 client.off('message', async (message) => {
   message.send.channel("bye amigos me going offline don't have fun without me");
 });
-
-const uptime_ = () => {
-  if (client.uptime > 500) myEmitter.emit('fun1');
-};
-
-uptime_();
 
 client.login(process.env.DJSTOKEN);
