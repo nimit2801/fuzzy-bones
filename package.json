@@ -1,13 +1,13 @@
 {
   "name": "fuzzy-bones",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Discord bot made with discordjs",
   "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./src/bot.js",
+    "start": "node ./src/bot.js",
     "bot": "nodemon ./src/bot.js"
   },
+  "type":"module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nimit2801/fuzzy-bones.git"
@@ -19,12 +19,9 @@
   },
   "homepage": "https://github.com/nimit2801/fuzzy-bones#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.5.0",
-    "axios": "^0.21.1",
-    "discord-xp": "^1.1.7",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.0.1",
     "dotenv": "^8.2.0",
-    "ffmpeg-static": "^4.3.0"
+    "elint": "^2.0.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"
