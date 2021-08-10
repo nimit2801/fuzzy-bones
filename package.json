@@ -2,7 +2,7 @@
   "name": "fuzzy-bones",
   "version": "2.0.0",
   "description": "Discord bot made with discordjs",
-  "main": "bot.js",
+  "main": "src/bot.js",
   "scripts": {
     "start": "node ./src/bot.js",
     "bot": "nodemon ./src/bot.js"
