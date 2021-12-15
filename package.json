@@ -7,7 +7,7 @@
     "start": "node ./src/bot.js",
     "bot": "nodemon ./src/bot.js"
   },
-  "type":"module",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nimit2801/fuzzy-bones.git"
@@ -19,11 +19,15 @@
   },
   "homepage": "https://github.com/nimit2801/fuzzy-bones#readme",
   "dependencies": {
-    "discord.js": "^13.0.1",
+    "@discordjs/opus": "^0.7.0",
+    "@discordjs/voice": "^0.7.5",
+    "discord.js": "^13.3.1",
     "dotenv": "^8.2.0",
-    "elint": "^2.0.1"
+    "elint": "^2.0.1",
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
+    "jest": "^27.0.6",
     "nodemon": "^2.0.7"
   }
 }
